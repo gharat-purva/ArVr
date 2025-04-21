@@ -2,32 +2,117 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Virtual Eyewear Try-On</title>
   <style>
-    body { margin: 0; padding: 0; display: flex; flex-direction: column; align-items: center; font-family: Arial, sans-serif; }
-    video, canvas { position: absolute; top: 0; left: 0; }
-    #container { position: relative; width: 640px; height: 480px; margin-top: 20px; }
-    #select { margin-top: 520px; }
+    body {
+      font-family: Arial, sans-serif;
+      background: #f5f5f5;
+      text-align: center;
+      margin: 0;
+      padding: 0;
+    }
+
+    h1 {
+      margin-top: 20px;
+    }
+
+    #container {
+      position: relative;
+      width: 640px;
+      height: 480px;
+      margin: 20px auto;
+      border: 2px solid #ccc;
+    }
+
+    video, canvas {
+      position: absolute;
+      top: 0;
+      left: 0;
+    }
+
+    .product-grid {
+      display: flex;
+      justify-content: center;
+      flex-wrap: wrap;
+      margin: 20px auto;
+      gap: 20px;
+    }
+
+    .product {
+      background: white;
+      border-radius: 10px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+      padding: 10px;
+      width: 150px;
+    }
+
+    .product img {
+      width: 100%;
+      height: auto;
+      cursor: pointer;
+    }
+
+    .product h4 {
+      margin: 10px 0 5px;
+    }
+
+    .product button {
+      background: #28a745;
+      color: white;
+      border: none;
+      padding: 5px 10px;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+
+    .product button:hover {
+      background: #218838;
+    }
   </style>
 </head>
 <body>
-  <h1>Try On Eyeglasses!</h1>
+  <h1>Virtual Eyewear Try-On</h1>
   <div id="container">
     <video id="video" width="640" height="480" autoplay muted></video>
     <canvas id="overlay" width="640" height="480"></canvas>
   </div>
+
+  <div class="product-grid">
+    <div class="product">
+      <img src="1.png" onclick="changeGlasses(this.src)" />
+      <h4>Classic Black</h4>
+      <p>₹499</p>
+      <button onclick="alert('Added to cart!')">Add to Cart</button>
+    </div>
+    <div class="product">
+      <img src="2.png" onclick="changeGlasses(this.src)" />
+      <h4>Retro Round</h4>
+      <p>₹649</p>
+      <button onclick="alert('Added to cart!')">Add to Cart</button>
+    </div>
+    <div class="product">
+      <img src="3.png" onclick="changeGlasses(this.src)" />
+      <h4>Smart Blue</h4>
+      <p>₹799</p>
+      <button onclick="alert('Added to cart!')">Add to Cart</button>
+    </div>
+  </div>
+
   <script src="https://cdn.jsdelivr.net/npm/@mediapipe/face_mesh/face_mesh.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js"></script>
   <script>
     const video = document.getElementById('video');
     const canvas = document.getElementById('overlay');
     const ctx = canvas.getContext('2d');
+    const glassesImg = new Image();
+    glassesImg.src = "https://i.postimg.cc/YqSx1s9F/glasses1.png"; // default
 
-    const img = new Image();
-    img.src = '1.png'; // transparent eyeglasses PNG
+    function changeGlasses(src) {
+      glassesImg.src = src;
+    }
 
-    const faceMesh = new FaceMesh({locateFile: (file) => `https://cdn.jsdelivr.net/npm/@mediapipe/face_mesh/${file}`});
+    const faceMesh = new FaceMesh({ locateFile: (file) => `https://cdn.jsdelivr.net/npm/@mediapipe/face_mesh/${file}` });
     faceMesh.setOptions({
       maxNumFaces: 1,
       refineLandmarks: true,
@@ -47,13 +132,13 @@
         const width = Math.abs((rightEye.x - leftEye.x)) * canvas.width * 2;
         const height = width / 2.5;
 
-        ctx.drawImage(img, centerX - width / 2, centerY - height / 2, width, height);
+        ctx.drawImage(glassesImg, centerX - width / 2, centerY - height / 2, width, height);
       }
     });
 
     const camera = new Camera(video, {
       onFrame: async () => {
-        await faceMesh.send({image: video});
+        await faceMesh.send({ image: video });
       },
       width: 640,
       height: 480
